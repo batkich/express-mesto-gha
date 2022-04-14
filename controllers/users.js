@@ -16,9 +16,9 @@ const sendUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') return res.status(ERROR_404).send({ message: 'Запрашиваемый пользователь не найден' });
-      return res.status(500).send({ message: 'Произошла ошибка' })
+      return res.status(500).send({ message: 'Произошла ошибка' });
     });
-}
+};
 
 const userCreate = (req, res) => {
   const { name, about, avatar } = req.body;
@@ -34,17 +34,17 @@ const userCreate = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') return res.status(ERROR_400).send({ message: 'Переданы некорректные данные' });
-      return res.status(ERROR_500).send({ message: 'Произошла ошибка' })
+      return res.status(ERROR_500).send({ message: 'Произошла ошибка' });
     });
-}
+};
 
 const findAll = (req, res) => {
   User.find({})
     .then((users) => {
       res.send(users);
     })
-    .catch(err => res.status(ERROR_500).send({ message: 'Произошла ошибка' }));
-}
+    .catch(() => res.status(ERROR_500).send({ message: 'Произошла ошибка' }));
+};
 
 const updateProfile = (req, res) => {
   const { name, about } = req.body;
@@ -53,18 +53,26 @@ const updateProfile = (req, res) => {
   User.findByIdAndUpdate(currentUser, {
     name, about,
   }, { new: true })
+    // eslint-disable-next-line consistent-return
     .then((user) => {
+      // eslint-disable-next-line no-use-before-define
       if (!name || !about) {
         return res.status(ERROR_400).send({ message: 'Переданы некорректные данные' });
       }
-      const {_id, name, about, avatar} = user;
-      res.send({ name, about, avatar, _id});
+      const {
+        // eslint-disable-next-line no-shadow
+        _id, name, about, avatar,
+      } = user;
+      res.send({
+        name, about, avatar, _id,
+      });
     })
-    .catch(err => {
+    // eslint-disable-next-line consistent-return
+    .catch((err) => {
       if (err.name === 'CastError') return res.status(ERROR_404).send({ message: 'Запрашиваемый пользователь не найден' });
-      res.status(ERROR_500).send({ message: 'Произошла ошибка' })
+      res.status(ERROR_500).send({ message: 'Произошла ошибка' });
     });
-}
+};
 
 const updateAvatar = (req, res) => {
   const { avatar } = req.body;
@@ -73,19 +81,27 @@ const updateAvatar = (req, res) => {
   User.findByIdAndUpdate(currentUser, {
     avatar,
   }, { new: true })
+    // eslint-disable-next-line consistent-return
     .then((user) => {
+      // eslint-disable-next-line no-use-before-define
       if (!avatar) {
         return res.status(ERROR_400).send({ message: 'Переданы некорректные данные' });
       }
-      const {_id, name, about, avatar} = user;
-      res.send({ name, about, avatar, _id});
+      const {
+        // eslint-disable-next-line no-shadow
+        _id, name, about, avatar,
+      } = user;
+      res.send({
+        name, about, avatar, _id,
+      });
     })
-    .catch(err => {
+    // eslint-disable-next-line consistent-return
+    .catch((err) => {
       if (err.name === 'CastError') return res.status(ERROR_404).send({ message: 'Запрашиваемый пользователь не найден' });
       res.status(ERROR_500).send({ message: 'Произошла ошибка' });
     });
-}
+};
 
 module.exports = {
   sendUser, findAll, userCreate, updateProfile, updateAvatar,
-}
+};
