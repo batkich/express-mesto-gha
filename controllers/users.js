@@ -26,11 +26,11 @@ const userCreate = (req, res) => {
   User.create({ name, about, avatar })
     .then((user) => {
       const {
-        _id, newname, newabout, newavatar,
+        _id,
       } = user;
       res.send({
         data: {
-          name: newname, about: newabout, avatar: newavatar, _id,
+          message: `Создан пользователь ${_id}`,
         },
       });
     })
