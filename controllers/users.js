@@ -29,7 +29,9 @@ const userCreate = (req, res) => {
         _id, newname, newabout, newavatar,
       } = user;
       res.send({
-        name: newname, about: newabout, avatar: newavatar, _id,
+        data: {
+          name: newname, about: newabout, avatar: newavatar, _id,
+        },
       });
     })
     .catch((err) => {
