@@ -25,13 +25,8 @@ const userCreate = (req, res) => {
 
   User.create({ name, about, avatar })
     .then((user) => {
-      const {
-        _id,
-      } = user;
       res.send({
-        data: {
-          message: `Создан пользователь ${_id}`,
-        },
+        user,
       });
     })
     .catch((err) => {
