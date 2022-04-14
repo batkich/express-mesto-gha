@@ -24,10 +24,11 @@ app.use((req, res, next) => {
 
   next();
 });
-// app.use('/', (req, res) => {
-//   res.status(404).send({ message: 'Нет такой страницы' });
-// });
+
 app.use('/users', userRout);
 app.use('/cards', cardRout);
+app.use('/', (req, res) => {
+  res.status(404).send({ message: 'Нет такой страницы' });
+});
 
 app.listen(PORT);
