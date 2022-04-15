@@ -55,7 +55,7 @@ const updateProfile = (req, res) => {
 
   User.findByIdAndUpdate(currentUser, {
     name, about,
-  }, { runValidators: true })
+  }, { runValidators: true, new: true })
     // eslint-disable-next-line consistent-return
     .then((user) => {
       // eslint-disable-next-line no-use-before-define
@@ -85,7 +85,7 @@ const updateAvatar = (req, res) => {
 
   User.findByIdAndUpdate(currentUser, {
     avatar,
-  }, { runValidators: true })
+  }, { runValidators: true, new: true })
     // eslint-disable-next-line consistent-return
     .then((user) => {
       const {
