@@ -63,7 +63,7 @@ const likeCard = (req, res) => {
     // eslint-disable-next-line consistent-return
     .then((card) => {
       if (!req.user) {
-        return res.status(ERROR_404).send({ message: 'Переданы некорректные данные' });
+        return res.status(ERROR_400).send({ message: 'Переданы некорректные данные' });
       }
       const {
         likes, _id, name, link, owner,
