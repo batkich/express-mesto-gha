@@ -65,6 +65,9 @@ const likeCard = (req, res) => {
       if (!req.user) {
         return res.status(ERROR_400).send({ message: 'Переданы некорректные данные' });
       }
+      if (!card) {
+        return res.status(ERROR_404).send({ message: 'Запрашиваемый пользователь не найден' });
+      }
       const {
         likes, _id, name, link, owner,
       } = card;
@@ -89,6 +92,9 @@ const deleteLikeCard = (req, res) => {
     .then((card) => {
       if (!req.user) {
         return res.status(ERROR_400).send({ message: 'Переданы некорректные данные' });
+      }
+      if (!card) {
+        return res.status(ERROR_404).send({ message: 'Запрашиваемый пользователь не найден' });
       }
       const {
         likes, _id, name, link, owner,
