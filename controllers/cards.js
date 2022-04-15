@@ -35,7 +35,11 @@ const cardCreate = (req, res) => {
 
 const deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params._id)
+    // eslint-disable-next-line consistent-return
     .then((card) => {
+      if (!card) {
+        return res.status(ERROR_400).send({ message: 'Запрашиваемая карточка не найдена' });
+      }
       const {
         likes, _id, name, link, owner,
       } = card;
