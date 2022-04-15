@@ -50,18 +50,19 @@ const findAll = (req, res) => {
 const updateProfile = (req, res) => {
   const { name, about } = req.body;
   const currentUser = req.user._id;
+  const reqName = name;
+  const reqAbout = about;
 
   User.findByIdAndUpdate(currentUser, {
     name, about,
-  }, { new: true })
+  }, { runValidators: true })
     // eslint-disable-next-line consistent-return
     .then((user) => {
       // eslint-disable-next-line no-use-before-define
 
-      // if (!name || !about) {
-      //   return res.status(ERROR_400).send({ message: 'Переданы некорректные данные' });
-      // }
-
+      if (!reqName || !reqAbout) {
+        return res.status(ERROR_400).send({ message: 'Переданы некорректные данные' });
+      }
       const {
         // eslint-disable-next-line no-shadow
         _id, name, about, avatar,
@@ -72,6 +73,7 @@ const updateProfile = (req, res) => {
     })
     // eslint-disable-next-line consistent-return
     .catch((err) => {
+      if (err.name === 'ValidationError') return res.status(ERROR_400).send({ message: 'Переданы некорректные данные' });
       if (err.name === 'CastError') return res.status(ERROR_404).send({ message: 'Запрашиваемый пользователь не найден' });
       res.status(ERROR_500).send({ message: 'Произошла ошибка' });
     });
@@ -83,7 +85,7 @@ const updateAvatar = (req, res) => {
 
   User.findByIdAndUpdate(currentUser, {
     avatar,
-  }, { new: true })
+  }, { runValidators: true })
     // eslint-disable-next-line consistent-return
     .then((user) => {
       const {
@@ -96,6 +98,7 @@ const updateAvatar = (req, res) => {
     })
     // eslint-disable-next-line consistent-return
     .catch((err) => {
+      if (err.name === 'ValidationError') return res.status(ERROR_400).send({ message: 'Переданы некорректные данные' });
       if (err.name === 'CastError') return res.status(ERROR_404).send({ message: 'Запрашиваемый пользователь не найден' });
       res.status(ERROR_500).send({ message: 'Произошла ошибка' });
     });
