@@ -99,7 +99,7 @@ const deleteLikeCard = (req, res) => {
     })
     // eslint-disable-next-line consistent-return
     .catch((err) => {
-      if (err.name === 'CastError') return res.status(ERROR_404).send({ message: 'Запрашиваемая карточка не найдена' });
+      if (err.name === 'CastError') return res.status(ERROR_400).send({ message: 'Запрашиваемая карточка не найдена' });
       res.status(ERROR_500).send({ message: 'Произошла ошибка' });
     });
 };
