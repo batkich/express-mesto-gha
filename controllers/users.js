@@ -1,8 +1,6 @@
 const User = require('../models/user');
 
-const ERROR_400 = 400;
-const ERROR_404 = 404;
-const ERROR_500 = 500;
+const { ERROR_400, ERROR_404, ERROR_500 } = require('../errorName');
 
 const sendUser = (req, res) => {
   User.findById(req.params._id)
@@ -59,7 +57,9 @@ const updateProfile = (req, res) => {
     // eslint-disable-next-line consistent-return
     .then((user) => {
       // eslint-disable-next-line no-use-before-define
-
+      if (!req.user) {
+        return res.status(ERROR_400).send({ message: 'Переданы некорректные данные' });
+      }
       if (!reqName || !reqAbout) {
         return res.status(ERROR_400).send({ message: 'Переданы некорректные данные' });
       }
@@ -74,7 +74,9 @@ const updateProfile = (req, res) => {
     // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.name === 'ValidationError') return res.status(ERROR_400).send({ message: 'Переданы некорректные данные' });
-      if (err.name === 'CastError') return res.status(ERROR_404).send({ message: 'Запрашиваемый пользователь не найден' });
+      if (err.name === 'CastError') return res.status(ERROR_400).send({ message: 'Переданы некорректные данные' });
+      // Айсалкын, я не совсем понял, нужно удалить до следующего спринта
+      // обработчик CastError или изменить код ошибки?
       res.status(ERROR_500).send({ message: 'Произошла ошибка' });
     });
 };
@@ -88,6 +90,9 @@ const updateAvatar = (req, res) => {
   }, { runValidators: true, new: true })
     // eslint-disable-next-line consistent-return
     .then((user) => {
+      if (!req.user) {
+        return res.status(ERROR_400).send({ message: 'Переданы некорректные данные' });
+      }
       const {
         // eslint-disable-next-line no-shadow
         avatar,
@@ -99,7 +104,7 @@ const updateAvatar = (req, res) => {
     // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.name === 'ValidationError') return res.status(ERROR_400).send({ message: 'Переданы некорректные данные' });
-      if (err.name === 'CastError') return res.status(ERROR_404).send({ message: 'Запрашиваемый пользователь не найден' });
+      if (err.name === 'CastError') return res.status(ERROR_400).send({ message: 'Переданы некорректные данные' });
       res.status(ERROR_500).send({ message: 'Произошла ошибка' });
     });
 };

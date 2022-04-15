@@ -1,12 +1,5 @@
 const mongoose = require('mongoose');
 
-const ObjectId = new mongoose.Schema({
-  _id: {
-    type: String,
-    required: true,
-  },
-});
-
 const cardSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -19,11 +12,13 @@ const cardSchema = new mongoose.Schema({
     required: true,
   },
   owner: {
-    type: ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'user',
     required: true,
   },
   likes: [{
-    type: ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'user',
     default: [],
   }],
   createdAt: {
@@ -33,3 +28,9 @@ const cardSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model('card', cardSchema);
+
+// eslint-disable-next-line max-len
+// Здравствуйте, Айсалкын! Спасибо за ссылку, но, если честно сказать, к сожалению при чтении English документации я, мягко говоря испытываю
+// определенные трудности (мало что понимаю :) ). Поэтому приходиться искать информацию
+// на русском языке и собирать "по кускам". Хотя конечно понимаю, что без "Инглиша"
+// стать нормальным разработчиком врядли получиться.

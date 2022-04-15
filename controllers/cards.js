@@ -1,8 +1,6 @@
 const Card = require('../models/card');
 
-const ERROR_400 = 400;
-const ERROR_404 = 404;
-const ERROR_500 = 500;
+const { ERROR_400, ERROR_404, ERROR_500 } = require('../errorName');
 
 const findAllCards = (req, res) => {
   Card.find({})
@@ -113,3 +111,7 @@ const deleteLikeCard = (req, res) => {
 module.exports = {
   findAllCards, cardCreate, deleteCard, likeCard, deleteLikeCard,
 };
+
+// Айсалкын, если не затруднит напишите пожалуйста, пару строк о том почему Eslint "ругается"
+// в этом  и соседнем документе на стрелочные функции, пытался разобраться, но так и не нашел
+// в чем причина и пришлось ставить "авторешение": eslint-disable-next-line consistent-return;
