@@ -9,7 +9,7 @@ const sendUser = (req, res) => {
     // eslint-disable-next-line consistent-return
     .then((user) => {
       if (!user) {
-        return res.status(400).send({ message: 'Запрашиваемый пользователь не найден' });
+        return res.status(ERROR_404).send({ message: 'Запрашиваемый пользователь не найден' });
       }
       const {
         _id, name, about, avatar,
@@ -57,9 +57,11 @@ const updateProfile = (req, res) => {
     // eslint-disable-next-line consistent-return
     .then((user) => {
       // eslint-disable-next-line no-use-before-define
-      if (!name || !about) {
-        return res.status(ERROR_400).send({ message: 'Переданы некорректные данные' });
-      }
+
+      // if (!name || !about) {
+      //   return res.status(ERROR_400).send({ message: 'Переданы некорректные данные' });
+      // }
+
       const {
         // eslint-disable-next-line no-shadow
         _id, name, about, avatar,
