@@ -1,13 +1,19 @@
+const bcrypt = require('bcryptjs');
+
+const jwt = require('jsonwebtoken');
+
 const User = require('../models/user');
 
-const { ERROR_400, ERROR_404, ERROR_500 } = require('../errorName');
+const BadRequest = require('../errors/badRequest');
+const Unauthorized = require('../errors/unauthorized');
+const Notfound = require('../errors/notfound');
+const Conflict = require('../errors/conflict');
 
-const sendUser = (req, res) => {
+const sendUser = (req, res, next) => {
   User.findById(req.params._id)
-    // eslint-disable-next-line consistent-return
     .then((user) => {
       if (!user) {
-        return res.status(ERROR_404).send({ message: 'Запрашиваемый пользователь не найден' });
+        throw new Notfound('Запрашиваемый пользователь не найден');
       }
       const {
         _id, name, about, avatar,
@@ -17,35 +23,40 @@ const sendUser = (req, res) => {
       });
     })
     .catch((err) => {
-      if (err.name === 'CastError') return res.status(ERROR_400).send({ message: 'Запрашиваемый пользователь не найден' });
-      return res.status(500).send({ message: 'Произошла ошибка' });
+      if (err.name === 'CastError') next(new BadRequest('Запрашиваемый пользователь не найден'));
+      next(err);
     });
 };
 
-const userCreate = (req, res) => {
-  const { name, about, avatar } = req.body;
-
-  User.create({ name, about, avatar })
+const userCreate = (req, res, next) => {
+  const {
+    email, password, name, about, avatar,
+  } = req.body;
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      email, password: hash, name, about, avatar,
+    }))
     .then((user) => {
       res.send({
         user,
       });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') return res.status(ERROR_400).send({ message: 'Переданы некорректные данные' });
-      return res.status(ERROR_500).send({ message: 'Произошла ошибка' });
+      if (err.name === 'ValidationError') next(new BadRequest('Переданы некорректные данные'));
+      if (err.code === 11000) next(new Conflict('Email уже используется'));
+      next(err);
     });
 };
 
-const findAll = (req, res) => {
+const findAll = (req, res, next) => {
   User.find({})
     .then((users) => {
       res.send(users);
     })
-    .catch(() => res.status(ERROR_500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => next(err));
 };
 
-const updateProfile = (req, res) => {
+const updateProfile = (req, res, next) => {
   const { name, about } = req.body;
   const currentUser = req.user._id;
   const reqName = name;
@@ -58,10 +69,10 @@ const updateProfile = (req, res) => {
     .then((user) => {
       // eslint-disable-next-line no-use-before-define
       if (!req.user) {
-        return res.status(ERROR_400).send({ message: 'Переданы некорректные данные' });
+        throw new BadRequest('Переданы некорректные данные');
       }
       if (!reqName || !reqAbout) {
-        return res.status(ERROR_400).send({ message: 'Переданы некорректные данные' });
+        throw new BadRequest('Переданы некорректные данные');
       }
       const {
         // eslint-disable-next-line no-shadow
@@ -73,15 +84,13 @@ const updateProfile = (req, res) => {
     })
     // eslint-disable-next-line consistent-return
     .catch((err) => {
-      if (err.name === 'ValidationError') return res.status(ERROR_400).send({ message: 'Переданы некорректные данные' });
-      if (err.name === 'CastError') return res.status(ERROR_400).send({ message: 'Переданы некорректные данные' });
-      // Айсалкын, я не совсем понял, нужно удалить до следующего спринта
-      // обработчик CastError или изменить код ошибки?
-      res.status(ERROR_500).send({ message: 'Произошла ошибка' });
+      if (err.name === 'ValidationError') next(new BadRequest('Переданы некорректные данные'));
+      if (err.name === 'CastError') next(new BadRequest('Переданы некорректные данные'));
+      next(err);
     });
 };
 
-const updateAvatar = (req, res) => {
+const updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   const currentUser = req.user._id;
 
@@ -91,7 +100,7 @@ const updateAvatar = (req, res) => {
     // eslint-disable-next-line consistent-return
     .then((user) => {
       if (!req.user) {
-        return res.status(ERROR_400).send({ message: 'Переданы некорректные данные' });
+        throw new BadRequest('Переданы некорректные данные');
       }
       const {
         // eslint-disable-next-line no-shadow
@@ -103,12 +112,46 @@ const updateAvatar = (req, res) => {
     })
     // eslint-disable-next-line consistent-return
     .catch((err) => {
-      if (err.name === 'ValidationError') return res.status(ERROR_400).send({ message: 'Переданы некорректные данные' });
-      if (err.name === 'CastError') return res.status(ERROR_400).send({ message: 'Переданы некорректные данные' });
-      res.status(ERROR_500).send({ message: 'Произошла ошибка' });
+      if (err.name === 'ValidationError') next(new BadRequest('Переданы некорректные данные'));
+      if (err.name === 'CastError') next(new BadRequest('Переданы некорректные данные'));
+      next(err);
+    });
+};
+
+const login = (req, res, next) => {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, 'topsecret-token', { expiresIn: '7d' });
+      res.cookie('jwt', token, { maxAge: 3600000 * 24 * 7, httpOnly: true })
+        .end();
+    })
+    .catch(() => {
+      next(new Unauthorized('Авторизация неуспешна, проверьте логин или пароль'));
+    });
+};
+
+const selectedUser = (req, res, next) => {
+  User.findById(req.user._id)
+    // eslint-disable-next-line consistent-return
+    .then((user) => {
+      if (!user) {
+        throw new Notfound('Запрашиваемый пользователь не найден');
+      }
+      const {
+        _id, email, name, about, avatar,
+      } = user;
+      res.send({
+        name, email, about, avatar, _id,
+      });
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') next(new BadRequest('Запрашиваемый пользователь не найден'));
+      next(err);
     });
 };
 
 module.exports = {
-  sendUser, findAll, userCreate, updateProfile, updateAvatar,
+  sendUser, findAll, userCreate, updateProfile, updateAvatar, login, selectedUser,
 };

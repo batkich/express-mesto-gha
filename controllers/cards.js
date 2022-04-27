@@ -1,14 +1,16 @@
 const Card = require('../models/card');
 
-const { ERROR_400, ERROR_404, ERROR_500 } = require('../errorName');
+const BadRequest = require('../errors/badRequest');
+const Notfound = require('../errors/notfound');
+const Forbidden = require('../errors/forbidden');
 
-const findAllCards = (req, res) => {
+const findAllCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.send({ cards }))
-    .catch(() => res.status(ERROR_500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => next(err));
 };
 
-const cardCreate = (req, res) => {
+const cardCreate = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user;
   Card.create({
@@ -26,33 +28,36 @@ const cardCreate = (req, res) => {
     })
     // eslint-disable-next-line consistent-return
     .catch((err) => {
-      if (err.name === 'ValidationError') return res.status(ERROR_400).send({ message: 'Переданы некорректные данные' });
-      res.status(ERROR_500).send({ message: 'Произошла ошибка' });
+      if (err.name === 'ValidationError') next(new BadRequest('Переданы некорректные данные'));
+      next(err);
     });
 };
 
-const deleteCard = (req, res) => {
+const deleteCard = (req, res, next) => {
   Card.findByIdAndRemove(req.params._id)
     // eslint-disable-next-line consistent-return
     .then((card) => {
       if (!card) {
-        return res.status(ERROR_404).send({ message: 'Запрашиваемая карточка не найдена' });
+        throw new Notfound('Запрашиваемая карточка не найдена');
       }
       const {
         likes, _id, name, link, owner,
       } = card;
+      if (owner !== req.user._id) {
+        throw new Forbidden('Нет прав');
+      }
       res.send({
         likes, _id, name, link, owner,
       });
     })
     // eslint-disable-next-line consistent-return
     .catch((err) => {
-      if (err.name === 'CastError') return res.status(ERROR_400).send({ message: 'Запрашиваемая карточка не найдена' });
-      res.status(ERROR_500).send({ message: 'Произошла ошибка' });
+      if (err.name === 'CastError') next(new BadRequest('Запрашиваемая карточка не найдена'));
+      next(err);
     });
 };
 
-const likeCard = (req, res) => {
+const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params._id,
     { $addToSet: { likes: req.user } },
@@ -61,10 +66,10 @@ const likeCard = (req, res) => {
     // eslint-disable-next-line consistent-return
     .then((card) => {
       if (!req.user) {
-        return res.status(ERROR_400).send({ message: 'Переданы некорректные данные' });
+        throw new BadRequest('Переданы некорректные данные');
       }
       if (!card) {
-        return res.status(ERROR_404).send({ message: 'Запрашиваемый пользователь не найден' });
+        throw new Notfound('Запрашиваемый пользователь не найден');
       }
       const {
         likes, _id, name, link, owner,
@@ -75,12 +80,12 @@ const likeCard = (req, res) => {
     })
     // eslint-disable-next-line consistent-return
     .catch((err) => {
-      if (err.name === 'CastError') return res.status(ERROR_400).send({ message: 'Запрашиваемая карточка не найдена' });
-      res.status(ERROR_500).send({ message: 'Произошла ошибка' });
+      if (err.name === 'CastError') next(new BadRequest('Запрашиваемая карточка не найдена'));
+      next(err);
     });
 };
 
-const deleteLikeCard = (req, res) => {
+const deleteLikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params._id,
     { $pull: { likes: req.user } },
@@ -89,10 +94,10 @@ const deleteLikeCard = (req, res) => {
     // eslint-disable-next-line consistent-return
     .then((card) => {
       if (!req.user) {
-        return res.status(ERROR_400).send({ message: 'Переданы некорректные данные' });
+        throw new BadRequest('Переданы некорректные данные');
       }
       if (!card) {
-        return res.status(ERROR_404).send({ message: 'Запрашиваемый пользователь не найден' });
+        throw new Notfound('Запрашиваемый пользователь не найден');
       }
       const {
         likes, _id, name, link, owner,
@@ -103,15 +108,11 @@ const deleteLikeCard = (req, res) => {
     })
     // eslint-disable-next-line consistent-return
     .catch((err) => {
-      if (err.name === 'CastError') return res.status(ERROR_400).send({ message: 'Запрашиваемая карточка не найдена' });
-      res.status(ERROR_500).send({ message: 'Произошла ошибка' });
+      if (err.name === 'CastError') next(new BadRequest('Запрашиваемая карточка не найдена'));
+      next(err);
     });
 };
 
 module.exports = {
   findAllCards, cardCreate, deleteCard, likeCard, deleteLikeCard,
 };
-
-// Айсалкын, если не затруднит напишите пожалуйста, пару строк о том почему Eslint "ругается"
-// в этом  и соседнем документе на стрелочные функции, пытался разобраться, но так и не нашел
-// в чем причина и пришлось ставить "авторешение": eslint-disable-next-line consistent-return;
