@@ -1,5 +1,6 @@
 const cardRout = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
+const auth = require('../middlewares/auth');
 
 const {
   findAllCards, cardCreate, deleteCard, likeCard, deleteLikeCard,
@@ -13,7 +14,11 @@ cardRout.post('/', celebrate({
     owner: Joi.string(),
   }),
 }), cardCreate);
-cardRout.delete('/:_id', deleteCard);
+cardRout.delete('/:_id', auth, celebrate({
+  params: Joi.object().keys({
+    _id: Joi.string().required().min(24).max(24),
+  }),
+}), deleteCard);
 cardRout.put('/:_id/likes', celebrate({
   params: Joi.object().keys({
     _id: Joi.string().min(24).max(24),
