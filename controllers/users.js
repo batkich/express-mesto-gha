@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 const BadRequest = require('../errors/badRequest');
+const Unauthorized = require('../errors/unauthorized');
 const Notfound = require('../errors/notfound');
 const Conflict = require('../errors/conflict');
 
@@ -132,7 +133,7 @@ const login = (req, res, next) => {
       res.send({ token });
     })
     .catch(() => {
-      next(new BadRequest('Авторизация неуспешна, проверьте логин или пароль'));
+      next(new Unauthorized('Авторизация неуспешна, проверьте логин или пароль'));
     });
 };
 

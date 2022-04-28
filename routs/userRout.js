@@ -10,7 +10,7 @@ userRout.get('/', findAll);
 userRout.get('/me', selectedUser);
 userRout.get('/:_id', celebrate({
   params: Joi.object().keys({
-    _id: Joi.string(),
+    _id: Joi.string().min(24).max(24),
   }),
 }), sendUser);
 userRout.patch('/me', celebrate({
