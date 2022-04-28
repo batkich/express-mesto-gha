@@ -5,7 +5,6 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 const BadRequest = require('../errors/badRequest');
-const Unauthorized = require('../errors/unauthorized');
 const Notfound = require('../errors/notfound');
 const Conflict = require('../errors/conflict');
 
@@ -22,9 +21,10 @@ const sendUser = (req, res, next) => {
         name, about, avatar, _id,
       });
     })
+    // eslint-disable-next-line consistent-return
     .catch((err) => {
-      if (err.name === 'CastError') next(new BadRequest('Запрашиваемый пользователь не найден'));
-      next(err);
+      if (err.name === 'CastError') return next(new BadRequest('Запрашиваемый пользователь не найден'));
+      return next(err);
     });
 };
 
@@ -37,14 +37,18 @@ const userCreate = (req, res, next) => {
       email, password: hash, name, about, avatar,
     }))
     .then((user) => {
+      const newUser = {
+        email: user.email, name: user.name, about: user.about, avatar: user.avatar,
+      };
       res.send({
-        user,
+        newUser,
       });
     })
+    // eslint-disable-next-line consistent-return
     .catch((err) => {
-      if (err.name === 'ValidationError') next(new BadRequest('Переданы некорректные данные'));
-      if (err.code === 11000) next(new Conflict('Email уже используется'));
-      next(err);
+      if (err.name === 'ValidationError') return next(new BadRequest('Переданы некорректные данные'));
+      if (err.code === 11000) return next(new Conflict('Email уже используется'));
+      return next(err);
     });
 };
 
@@ -84,9 +88,9 @@ const updateProfile = (req, res, next) => {
     })
     // eslint-disable-next-line consistent-return
     .catch((err) => {
-      if (err.name === 'ValidationError') next(new BadRequest('Переданы некорректные данные'));
-      if (err.name === 'CastError') next(new BadRequest('Переданы некорректные данные'));
-      next(err);
+      if (err.name === 'ValidationError') return next(new BadRequest('Переданы некорректные данные'));
+      if (err.name === 'CastError') return next(new BadRequest('Переданы некорректные данные'));
+      return next(err);
     });
 };
 
@@ -112,9 +116,9 @@ const updateAvatar = (req, res, next) => {
     })
     // eslint-disable-next-line consistent-return
     .catch((err) => {
-      if (err.name === 'ValidationError') next(new BadRequest('Переданы некорректные данные'));
-      if (err.name === 'CastError') next(new BadRequest('Переданы некорректные данные'));
-      next(err);
+      if (err.name === 'ValidationError') return next(new BadRequest('Переданы некорректные данные'));
+      if (err.name === 'CastError') return next(new BadRequest('Переданы некорректные данные'));
+      return next(err);
     });
 };
 
@@ -128,7 +132,7 @@ const login = (req, res, next) => {
       res.send({ token });
     })
     .catch(() => {
-      next(new Unauthorized('Авторизация неуспешна, проверьте логин или пароль'));
+      next(new BadRequest('Авторизация неуспешна, проверьте логин или пароль'));
     });
 };
 
@@ -147,8 +151,8 @@ const selectedUser = (req, res, next) => {
       });
     })
     .catch((err) => {
-      if (err.name === 'CastError') next(new BadRequest('Запрашиваемый пользователь не найден'));
-      next(err);
+      if (err.name === 'CastError') return next(new BadRequest('Запрашиваемый пользователь не найден'));
+      return next(err);
     });
 };
 

@@ -28,8 +28,8 @@ const cardCreate = (req, res, next) => {
     })
     // eslint-disable-next-line consistent-return
     .catch((err) => {
-      if (err.name === 'ValidationError') next(new BadRequest('Переданы некорректные данные'));
-      next(err);
+      if (err.name === 'ValidationError') return next(new BadRequest('Переданы некорректные данные'));
+      return next(err);
     });
 };
 
@@ -52,8 +52,8 @@ const deleteCard = (req, res, next) => {
     })
     // eslint-disable-next-line consistent-return
     .catch((err) => {
-      if (err.name === 'CastError') next(new BadRequest('Запрашиваемая карточка не найдена'));
-      next(err);
+      if (err.name === 'CastError') return next(new BadRequest('Запрашиваемая карточка не найдена'));
+      return next(err);
     });
 };
 
@@ -80,8 +80,8 @@ const likeCard = (req, res, next) => {
     })
     // eslint-disable-next-line consistent-return
     .catch((err) => {
-      if (err.name === 'CastError') next(new BadRequest('Запрашиваемая карточка не найдена'));
-      next(err);
+      if (err.name === 'CastError') return next(new BadRequest('Запрашиваемая карточка не найдена'));
+      return next(err);
     });
 };
 
@@ -108,8 +108,8 @@ const deleteLikeCard = (req, res, next) => {
     })
     // eslint-disable-next-line consistent-return
     .catch((err) => {
-      if (err.name === 'CastError') next(new BadRequest('Запрашиваемая карточка не найдена'));
-      next(err);
+      if (err.name === 'CastError') return next(new BadRequest('Запрашиваемая карточка не найдена'));
+      return next(err);
     });
 };
 
