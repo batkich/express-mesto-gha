@@ -37,12 +37,13 @@ const deleteCard = (req, res, next) => {
   Card.findByIdAndRemove(req.params._id)
     // eslint-disable-next-line consistent-return
     .then((card) => {
+      if (!card) {
+        throw new Notfound('Запрашиваемая карточка не найдена');
+      }
       const {
         likes, _id, name, link, owner,
       } = card;
-      if (!card) {
-        throw new Notfound('Запрашиваемая карточка не найдена');
-      } else if (String(card.owner) !== String(req.user._id)) {
+      if (String(card.owner) !== String(req.user._id)) {
         throw new Forbidden('Нет прав');
       }
       res.send({
