@@ -40,12 +40,12 @@ const deleteCard = (req, res, next) => {
       if (!card) {
         throw new Notfound('Запрашиваемая карточка не найдена');
       }
+      // else if (card.owner !== String(req.user._id)) {
+      //   throw new Forbidden('Нет прав');
+      // }
       const {
         likes, _id, name, link, owner,
       } = card;
-      if (owner !== req.user._id) {
-        throw new Forbidden('Нет прав');
-      }
       res.send({
         likes, _id, name, link, owner,
       });

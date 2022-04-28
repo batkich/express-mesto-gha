@@ -9,16 +9,24 @@ cardRout.get('/', findAllCards);
 cardRout.post('/', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
-    link: Joi.string().required(),
+    link: Joi.string().required().uri(),
     owner: Joi.string(),
   }),
 }), cardCreate);
 cardRout.delete('/:_id', celebrate({
   params: Joi.object().keys({
-    _id: Joi.string().required(),
+    _id: Joi.string().required().min(24).max(24),
   }),
 }), deleteCard);
-cardRout.put('/:_id/likes', likeCard);
-cardRout.delete('/:_id/likes', deleteLikeCard);
+cardRout.put('/:_id/likes', celebrate({
+  params: Joi.object().keys({
+    _id: Joi.string().min(24).max(24),
+  }),
+}), likeCard);
+cardRout.delete('/:_id/likes', celebrate({
+  params: Joi.object().keys({
+    _id: Joi.string().min(24).max(24),
+  }),
+}), deleteLikeCard);
 
 module.exports = cardRout;
