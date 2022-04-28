@@ -15,15 +15,14 @@ userRout.get('/:_id', celebrate({
 }), sendUser);
 userRout.patch('/me', celebrate({
   body: Joi.object().keys({
-    name: Joi.string().required().min(2).max(30),
-    about: Joi.string().required().min(2).max(30),
-    // eslint-disable-next-line no-useless-escape
-    avatar: Joi.string().required().regex(/(^https?:\/\/)?[a-z0-9~_\-\.]+\.[a-z]{2,9}(\/|:|\?[!-~]*)?$/i),
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
   }),
 }), updateProfile);
 userRout.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().required(),
+    // eslint-disable-next-line no-useless-escape
+    avatar: Joi.string().regex(/(^https?:\/\/)?[a-z0-9~_\-\.]+\.[a-z]{2,9}(\/|:|\?[!-~]*)?$/i),
   }),
 }), updateAvatar);
 
