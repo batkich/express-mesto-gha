@@ -13,11 +13,7 @@ cardRout.post('/', celebrate({
     owner: Joi.string(),
   }),
 }), cardCreate);
-cardRout.delete('/:_id', celebrate({
-  params: Joi.object().keys({
-    _id: Joi.string().required().min(24).max(24),
-  }),
-}), deleteCard);
+cardRout.delete('/:_id', deleteCard);
 cardRout.put('/:_id/likes', celebrate({
   params: Joi.object().keys({
     _id: Joi.string().min(24).max(24),
