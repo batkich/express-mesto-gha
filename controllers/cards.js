@@ -60,12 +60,12 @@ const deleteCard = (req, res, next) => {
 const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params._id,
-    { $addToSet: { likes: req.user } },
+    { $addToSet: { likes: req.user._id } },
     { new: true },
   )
     // eslint-disable-next-line consistent-return
     .then((card) => {
-      if (!req.user) {
+      if (!req.user._id) {
         throw new BadRequest('Переданы некорректные данные');
       }
       if (!card) {
@@ -88,12 +88,12 @@ const likeCard = (req, res, next) => {
 const deleteLikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params._id,
-    { $pull: { likes: req.user } },
+    { $pull: { likes: req.user._id } },
     { new: true },
   )
     // eslint-disable-next-line consistent-return
     .then((card) => {
-      if (!req.user) {
+      if (!req.user._id) {
         throw new BadRequest('Переданы некорректные данные');
       }
       if (!card) {
@@ -108,7 +108,7 @@ const deleteLikeCard = (req, res, next) => {
     })
     // eslint-disable-next-line consistent-return
     .catch((err) => {
-      if (err.name === 'CastError') return next(new BadRequest('Запрашиваемая карточка не найдена'));
+      if (err.name === 'CastError') return next(new Notfound('Запрашиваемая карточка не найдена'));
       return next(err);
     });
 };
