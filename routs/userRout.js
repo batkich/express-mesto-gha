@@ -17,6 +17,8 @@ userRout.patch('/me', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
     about: Joi.string().required().min(2).max(30),
+    // eslint-disable-next-line no-useless-escape
+    avatar: Joi.string().required().regex(/(^https?:\/\/)?[a-z0-9~_\-\.]+\.[a-z]{2,9}(\/|:|\?[!-~]*)?$/i),
   }),
 }), updateProfile);
 userRout.patch('/me/avatar', celebrate({
